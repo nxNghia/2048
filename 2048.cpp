@@ -6,6 +6,7 @@
 #include <time.h>
 #include <fstream>
 #include <stdio.h>
+#include <stack>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -35,7 +36,7 @@ void Cpy(unsigned char* source,unsigned char* des);
 void draw_rect(float x, float y, float width, float height, float radius);
 bool GoodToPlay();
 bool OkToGenerate();
-unsigned char* Convert(int n);
+stack<unsigned char> Convert2(int n);
 int Length(unsigned char*);
 
 int main (int argc, char **argv)
@@ -66,7 +67,6 @@ int main (int argc, char **argv)
 
 void display()		
 {
-	//drawVietnamFlag();
 	draw_graphic();
 	glFlush();
 	glutSwapBuffers();
@@ -131,8 +131,7 @@ void draw_graphic()
 	glColor3f(0.85 * x + 0.98 * y, 0.8 * x + 0.98 * y, 0.4 * x + 0.82 * y);
 	draw_rect(220.0, 6.0, 574.0, 585.0, 5.0);
 
-	//Tao hinh vuong to bao tron 16 hinh vuong nho
-	glColor3f(0.65 * y + 0.85 * x, 0.65 * y + 0.8 * x, 0.65 * y + 0.4 * x);	//Set mau cua hinh vuong to
+	glColor3f(0.65 * y + 0.85 * x, 0.65 * y + 0.8 * x, 0.65 * y + 0.4 * x);
 	draw_rect(283.0, 98.0, 440.0, 440.0, 5.0);
 
 	Ver_reverse();		//Dao mang tran theo chieu doc
@@ -202,7 +201,8 @@ void draw_graphic()
 	}
 
 	//Khai bao bien buffer duoi dang char de co the hien thi len man hinh
-	unsigned char* buffer = (unsigned char*)malloc(10*sizeof(unsigned char));
+	// unsigned char* buffer = (unsigned char*)malloc(10*sizeof(unsigned char));
+	stack<unsigned char> buffer2;
 	for (int j = 0; j < 4; ++j)
 	{
 		for (int i = 0; i < 4; ++i)
@@ -213,17 +213,24 @@ void draw_graphic()
 			else
 				glColor3f(0.85 * x, 0.8 * x, 0.4 * x);
 
-			buffer = Convert(a[i][j]);	//Ham convert() chuyen bien int thanh dang char sau do tra ve dia chi cua char do
+			// buffer = Convert(a[i][j]);	//Ham convert() chuyen bien int thanh dang char sau do tra ve dia chi cua char do
+			buffer2 = Convert2(a[i][j]);
 
 			glPushMatrix();
 			glLineWidth(3.0);
 			//Ham set vi tri hien thi gia tri cua o do
-			glTranslatef(206.0 + 108.0 * j + 135.0 - (float)Length(buffer) * 11.5, 106.0 + 108.0 * i + 37.5, 0.0);
+			glTranslatef(206.0 + 108.0 * j + 135.0 - (float)buffer2.size() * 11.5, 106.0 + 108.0 * i + 37.5, 0.0);
 			glScalef(0.3, 0.3, 0.3);
 			//Hien thi xau bieu dien gia tri cua o do
+
 			if(a[i][j] != 0)
-				for (int i = 0; i < Length(buffer); ++i)
-					glutStrokeCharacter(GLUT_STROKE_ROMAN, *(buffer + i));
+			{
+				while(!buffer2.empty())
+				{
+					glutStrokeCharacter(GLUT_STROKE_ROMAN, buffer2.top());
+					buffer2.pop();
+				}
+			}
 			glPopMatrix();
 		}
 	}
@@ -238,15 +245,18 @@ void draw_graphic()
 
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, title_1);
 
-	buffer = Convert(score);
+	buffer2 = Convert2(score);
 	/*glRasterPos2f(105.0 - (float)((Length(buffer) - 1.0) / 2) * 10.0, 460.0);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, buffer);*/
 
 	glPushMatrix();
-	glTranslatef(105.0 - (float)Length(buffer) * 9.25, 302.0, 0.0);
+	glTranslatef(105.0 - (float)buffer2.size() * 9.25, 302.0, 0.0);
 	glScalef(0.25, 0.25, 0.25);
-	for (int i = 0; i < Length(buffer); ++i)
-		glutStrokeCharacter(GLUT_STROKE_ROMAN, *(buffer + i));
+	while(!buffer2.empty())
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, buffer2.top());
+		buffer2.pop();
+	}
 	glPopMatrix();
 
 	//Tao o de hien thi highscore
@@ -255,15 +265,18 @@ void draw_graphic()
 
 	glColor3f(1.0, 1.0, 1.0);	//Set color
 	glRasterPos2f(60.0, 185.0);		//Set vi tri de viet
-	buffer = Convert(high_score);	//Convert highscore tu dang int sang dang char
+	buffer2 = Convert2(high_score);	//Convert highscore tu dang int sang dang char
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, title_2);
 
 	glPushMatrix();
-	glTranslatef(105.0 - (float)Length(buffer) * 9.25, 137.0, 0.0);
+	glTranslatef(105.0 - (float)buffer2.size() * 9.25, 137.0, 0.0);
 	glScalef(0.25, 0.25, 0.25);
 
-	for (int i = 0; i < Length(buffer); ++i)
-		glutStrokeCharacter(GLUT_STROKE_ROMAN, *(buffer + i));
+	while(!buffer2.empty())
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, buffer2.top());
+		buffer2.pop();
+	}
 	glPopMatrix();
 
 	glLineWidth(5.0);
@@ -279,8 +292,6 @@ void draw_graphic()
 	glColor3f(0.0, 0.0, 1.0);
 	glutStrokeCharacter(GLUT_STROKE_ROMAN, '8');
 	glPopMatrix();
-
-	free(buffer);
 
 	if(Continue)
 	{
@@ -421,35 +432,53 @@ void Ver(int n)
 		Generate();
 }
 
-unsigned char* Convert(int n)	//Chuyen int thanh char
+// unsigned char* Convert(int n)	//Chuyen int thanh char
+// {
+// 	unsigned char* str = (unsigned char*)malloc(10*sizeof(unsigned char));
+// 	int k = 0;
+
+// 	if(n == 0)
+// 	{
+// 		*str = '0';
+// 		*(str + 1) = '\0';
+// 		return str;
+// 	}
+
+// 	while(n >= 1)
+// 	{
+// 		*(str + k) = n % 10 + '0';
+// 		++k;
+// 		n /= 10;
+// 	}
+
+// 	*(str + k) = '\0';
+
+// 	for (int i = 0; i < k / 2; ++i)
+// 	{
+// 		char temp = *(str + i);
+// 		*(str + i) = *(str + k - 1 - i);
+// 		*(str + k - 1 - i) = temp;
+// 	}
+
+// 	return str;
+// }
+
+stack<unsigned char> Convert2(int n)
 {
-	unsigned char* str = (unsigned char*)malloc(10*sizeof(unsigned char));
-	int k = 0;
+	stack<unsigned char> result;
 
 	if(n == 0)
 	{
-		*str = '0';
-		*(str + 1) = '\0';
-		return str;
+		result.push('0');
+	}else{
+		while(n >= 1)
+		{
+			result.push(n % 10 + '0');
+			n /= 10;
+		}
+
 	}
-
-	while(n >= 1)
-	{
-		*(str + k) = n % 10 + '0';
-		++k;
-		n /= 10;
-	}
-
-	*(str + k) = '\0';
-
-	for (int i = 0; i < k / 2; ++i)
-	{
-		char temp = *(str + i);
-		*(str + i) = *(str + k - 1 - i);
-		*(str + k - 1 - i) = temp;
-	}
-
-	return str;
+	return result;
 }
 
 bool GoodToPlay()	//Ham xac dinh xem game co the choi tiep hay khong
