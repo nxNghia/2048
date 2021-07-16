@@ -29,12 +29,15 @@ void fillRects()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	//draw the left rectangle
 	glColor3f(0.98, 0.98, 0.82);
 	fillRect(6.0, 6.0, 211.0, 585.0, -1, 1.0);
 
+	//draw the right rectangle
 	glColor3f(0.98, 0.98, 0.82);
 	fillRect(220.0, 6.0, 574.0, 585.0, -1, 1.0);
 
+	//draw the smaller rectangle inside the right one
 	glColor3f(0.65, 0.65, 0.65);
 	fillRect(283.0, 98.0, 440.0, 440.0, -1, 1.0);
 
@@ -152,27 +155,7 @@ void fillRect(float x, float y, float width, float height, int value, float scal
 
 	//--------------------------------------------//
 
-	// glLineWidth(RADIUS);
-	// glBegin(GL_LINES);
-	// 	glVertex2f(x + RADIUS / 2, y + RADIUS);
-	// 	glVertex2f(x + RADIUS / 2, y + height - RADIUS);
-	// glEnd();
-
-	// glBegin(GL_LINES);
-	// 	glVertex2f(x + RADIUS, y + height - RADIUS / 2);
-	// 	glVertex2f(x + width - RADIUS, y + height - RADIUS / 2);
-	// glEnd();
-
-	// glBegin(GL_LINES);
-	// 	glVertex2f(x + width - RADIUS / 2, y + height - RADIUS);
-	// 	glVertex2f(x + width - RADIUS / 2, y + RADIUS);
-	// glEnd();
-
-	// glBegin(GL_LINES);
-	// 	glVertex2f(x + width - RADIUS, y + RADIUS / 2);
-	// 	glVertex2f(x + RADIUS, y + RADIUS / 2);
-	// glEnd();
-
+	//depend on its value, set the appopriate string color to match with background color
 	if(value == 2 || value == 4 || value == 16)
 		glColor3f(0.0, 0.0, 0.0);
 	else
@@ -184,10 +167,13 @@ void fillRect(float x, float y, float width, float height, int value, float scal
 		fillNumber(x + width / 2, y + height / 2, scale, value);
 }
 
+//split every digit of number then push into stack
 void fillNumber(float x, float y, float scale, int number)
 {
 	std::stack<unsigned char> display_number = ConvertToStack(number);
 	glPushMatrix();
+
+	//translate the x_axis by the number of digits centerlize the number
 	glTranslatef(x - 100.0 / 1.5 * scale * display_number.size() / 2, y - 50.0 * scale, 0.0);
 	glScalef(scale, scale, scale);
 	while(!display_number.empty())
