@@ -4,9 +4,10 @@
 #include <Graphic.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <array>
 
-int a[5][5];
-int b[5][5];
+std::array<std::array<int, 5>, 5> a;
+std::array<std::array<int, 5>, 5> b;
 int score = 0;
 bool end = false;
 unsigned char title3[10] = "GAME OVER";
@@ -287,9 +288,7 @@ void Keyboard_recognize(int key, int, int)
 			break;
 	}
 
-	for (int i = 0; i < 4; ++i)
-		for (int j = 0; j < 4; ++j)
-			b[i][j] = a[i][j];
+	b = a;
 }
 
 //game over if there isn't any pair of the same value squares by horizontal or vertical

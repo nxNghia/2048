@@ -2,6 +2,7 @@
 #define _GAME_
 
 #include <string>
+#include <array>
 
 #define PI 3.14
 #define FPS 100
@@ -10,9 +11,9 @@
 #define POS_X 200
 #define POS_Y 200
 
-extern int a[5][5];
-extern int b[5][5];
-extern int score;
+extern std::array<std::array<int, 5>, 5> a;	//save the following state
+extern std::array<std::array<int, 5>, 5> b;	//save the previous state
+extern int score;	//current score
 extern bool end;
 extern unsigned char title1[10];
 extern unsigned char title2[10];
